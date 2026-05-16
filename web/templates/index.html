@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>实习筛查报告</title>
+<style>
+  :root {
+    --bg: #f5f6fa; --card: #fff; --text: #2c3e50; --sub: #7f8c8d;
+    --accent: #3498db; --green: #27ae60; --red: #e74c3c; --border: #ecf0f1;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  .navbar { background: linear-gradient(135deg, #2c3e50, #3498db); color: #fff; padding: 0.8rem 2rem; display: flex; gap: 2rem; align-items: center; }
+  .navbar a { color: rgba(255,255,255,0.85); text-decoration: none; font-size: 0.9rem; }
+  .navbar a:hover, .navbar a.active { color: #fff; font-weight: 600; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 1.5rem 2rem; }
+
+  .toolbar { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 1rem; align-items: center; }
+  .toolbar select, .toolbar input { padding: 0.45rem 0.8rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; }
+  .toolbar input { flex: 1; min-width: 200px; max-width: 320px; }
+  .btn { padding: 0.5rem 1.5rem; border: none; border-radius: 6px; font-size: 0.9rem; cursor: pointer; font-weight: 600; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-green { background: var(--green); color: #fff; }
+  .btn-outline { background: #fff; border: 1px solid var(--accent); color: var(--accent); }
+
+  /* Empty & loading */
+  .empty { text-align: center; padding: 4rem 2rem; color: var(--sub); }
+  .empty h3 { font-size: 1.2rem; margin-bottom: 0.5rem; }
+  .empty .icon { font-size: 3rem; margin-bottom: 1rem; }
+  .spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 0.5rem; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .report-list { margin-bottom: 2rem; }
+  .report-item { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 1rem; background: var(--card); border-radius: 8px; margin-bottom: 0.4rem; }
+  .report-item .name { font-weight: 500; }
+  .report-item .time { font-size: 0.82rem; color: var(--sub); }
+
+  iframe { width: 100%; height: 80vh; border: none; border-radius: 8px; background: #fff; }
+
+  #statusBar { text-align: center; padding: 1rem; font-size: 0.9rem; color: var(--sub); }
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <strong>🔍 实习筛查</strong>
+  <a href="/" class="active">📊 报告</a>
+  <a href="/profile">📝 个人信息</a>
+</nav>
+
+<div class="container">
+  <div class="toolbar">
+    <button class="btn btn-green" onclick="runScreening()">🚀 立即筛查</button>
+    <button class="btn btn-outline" onclick="location.href='/profile'">📝 编辑信息</button>
+    <span style="margin-left:auto;font-size:0.85rem;color:var(--sub);" id="userInfo"></span>
+  </div>
+
+  <div id="statusBar" style="display:none;"></div>
+
+  <div class="report-list" id="reportList"></div>
+
+  <div id="reportFrame" style="display:none;">
+    <iframe id="frame" src=""></iframe>
+  </div>
+
+  <div id="emptyState" class="empty">
+    <div class="icon">📭</div>
+    <h3>暂无筛查报告</h3>
+    <p>点击"立即筛查"开始查找实习岗位</p>
+    <button class="btn btn-primary" onclick="runScreening()" style="margin-top:1rem;">🚀 立即筛查</button>
+  </div>
+</div>
+
+<script>
+// ---- Load reports ----
+async function loadReports() {
+  try {
+    const r = await fetch('/api/reports');
+    const reports = await r.json();
+    const el = document.getElementById('reportList');
+    const empty = document.getElementById('emptyState');
+    const frame = document.getElementById('reportFrame');
+
+    if (!reports.length) {
+      el.innerHTML = '';
+      empty.style.display = '';
+      frame.style.display = 'none';
+      return;
+    }
+
+    empty.style.display = 'none';
+    el.innerHTML = '<h3 style="margin-bottom:0.5rem;">📋 历史报告</h3>' +
+      reports.map((rep, i) =>
+        `<div class="report-item" onclick="viewReport('${rep.name}')" style="cursor:pointer;">
+          <span class="name">📄 ${rep.name}</span>
+          <span class="time">${rep.time}</span>
+        </div>`
+      ).join('');
+
+    // 自动打开最新报告
+    viewReport(reports[0].name);
+  } catch(e) { console.error(e); }
+}
+
+function viewReport(filename) {
+  document.getElementById('reportFrame').style.display = '';
+  document.getElementById('frame').src = `/api/report/${filename}`;
+}
+
+// ---- Run ----
+async function runScreening() {
+  const bar = document.getElementById('statusBar');
+  bar.style.display = '';
+  bar.innerHTML = '<span class="spinner"></span>筛查启动中...';
+
+  try {
+    const r = await fetch('/api/run', { method:'POST' });
+    const d = await r.json();
+    if (d.ok) {
+      bar.innerHTML = '<span class="spinner"></span>筛查进行中，请稍候...';
+      pollStatus();
+    } else {
+      bar.innerHTML = '⚠️ ' + (d.message || '启动失败');
+    }
+  } catch(e) {
+    bar.innerHTML = '⚠️ 请求失败: ' + e;
+  }
+}
+
+function pollStatus() {
+  const bar = document.getElementById('statusBar');
+  const iv = setInterval(async () => {
+    try {
+      const r = await fetch('/api/status');
+      const d = await r.json();
+      if (d.running) {
+        bar.innerHTML = '<span class="spinner"></span>筛查进行中...';
+      } else if (d.result === 'success') {
+        bar.innerHTML = '✅ 筛查完成！';
+        clearInterval(iv);
+        loadReports();
+      } else {
+        bar.innerHTML = '❌ 筛查失败: ' + (d.error || '未知错误');
+        clearInterval(iv);
+      }
+    } catch(e) { clearInterval(iv); }
+  }, 2000);
+}
+
+// ---- Load user info ----
+async function loadUserInfo() {
+  try {
+    const r = await fetch('/api/profile');
+    const d = await r.json();
+    const profile = d.profile || {};
+    if (profile.name && profile.name !== '你的名字') {
+      document.getElementById('userInfo').textContent =
+        `👤 ${profile.name} · ${profile.school || ''}`;
+    }
+  } catch(e) {}
+}
+
+// ---- Init ----
+loadReports();
+loadUserInfo();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# 虚拟环境
+venv/
+.env/
+.venv/
+
+# 数据文件（数据库、日志）
+data/
+*.db
+*.log
+
+# 输出报告
+outputs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 敏感信息（提交前请删除 API Key）
+# config.yaml 中的 api_key 字段
+
+# 个人配置文件（含 API Key，不提交）
+config.yaml

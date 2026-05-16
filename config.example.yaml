@@ -1,0 +1,96 @@
+# ============================================================
+# 实习生岗位自动筛查工具 - 用户配置文件
+# ============================================================
+
+# 你的基本信息
+profile:
+  name: "你的名字"
+  school: "西安建筑科技大学"
+  major: "计算机科学与技术"
+  degree: "硕士"
+  grade: "研一"
+
+  # 自我描述（自然语言，大模型会分析提取技能标签）
+  self_intro: >
+    研一在读，主要使用 Python 做后端开发，熟悉 Django 和 Flask 框架。
+    学过 MySQL、Redis，了解 Linux 基本操作和 Git 版本控制。
+    做过一个小型的校园论坛项目，用 Python + Django + MySQL 实现。
+    对数据分析方向也很感兴趣，学过 pandas 和 scikit-learn。
+
+  # 项目经历（可选）
+  projects:
+    - name: "校园论坛"
+      role: "全栈开发"
+      tech: ["Python", "Django", "MySQL", "HTML/CSS"]
+      desc: "实现了用户注册登录、发帖评论、点赞收藏等功能"
+
+# 意向城市
+cities:
+  - "西安"
+  - "北京"
+  - "上海"
+
+# 技能栈（1-5 分）
+skills:
+  Python: 4
+  Java: 3
+  MySQL: 3
+  Linux: 3
+  Git: 4
+
+# 岗位方向
+job_directions:
+  - "后端开发"
+  - "数据分析"
+  - "测试开发"
+  - "算法"
+
+# 关注的公司（可选）
+preferred_companies: []
+
+# ============================================================
+# 国产大模型配置（DeepSeek 免费注册即可用）
+# ============================================================
+llm:
+  enabled: true
+  provider: "deepseek"
+  api_base: "https://api.deepseek.com/v1"
+  api_key: "请在此填写你的API_KEY"
+  model: "deepseek-chat"
+  temperature: 0.3
+  max_tokens: 2000
+
+# ============================================================
+# 采集配置
+# ============================================================
+collector:
+  interval_hours: 12
+  max_pages: 3
+  shixiseng_base: "https://www.shixiseng.com"
+  nowcoder_base: "https://www.nowcoder.com"
+  request_delay: 2.0
+  user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+
+# ============================================================
+# 匹配配置
+# ============================================================
+matcher:
+  skill_weight: 0.5
+  city_weight: 0.2
+  company_weight: 0.15
+  degree_weight: 0.15
+
+# ============================================================
+# 输出配置
+# ============================================================
+output:
+  report_dir: "./outputs"
+  report_name: "internship_report_%Y%m%d_%H%M.html"
+  top_n: 30
+
+# ============================================================
+# Web 服务配置
+# ============================================================
+web:
+  host: "127.0.0.1"
+  port: 5000

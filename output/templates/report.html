@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>实习岗位匹配报告 - {{ report_time }}</title>
+<style>
+  :root {
+    --bg: #f5f6fa;
+    --card-bg: #ffffff;
+    --text: #2c3e50;
+    --sub: #7f8c8d;
+    --accent: #3498db;
+    --rank-1: #e74c3c;
+    --rank-2: #e67e22;
+    --rank-3: #f1c40f;
+    --green: #27ae60;
+    --red: #e74c3c;
+    --border: #ecf0f1;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                 "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* ---- Header ---- */
+  .header {
+    background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+    color: #fff;
+    padding: 2rem 2rem 1.5rem;
+  }
+  .header h1 { font-size: 1.6rem; font-weight: 600; margin-bottom: 0.3rem; }
+  .header .meta { font-size: 0.85rem; opacity: 0.85; }
+  .header .meta span { margin-right: 1rem; }
+
+  /* ---- Stats ---- */
+  .stats {
+    display: flex;
+    gap: 1rem;
+    padding: 1.2rem 2rem;
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .stat-card {
+    flex: 1; min-width: 120px;
+    text-align: center;
+    padding: 0.8rem;
+    border-radius: 8px;
+    background: var(--bg);
+  }
+  .stat-card .num { font-size: 1.5rem; font-weight: 700; color: var(--accent); }
+  .stat-card .label { font-size: 0.8rem; color: var(--sub); }
+
+  /* ---- Container ---- */
+  .container { max-width: 1100px; margin: 0 auto; padding: 1.5rem 2rem; }
+
+  /* ---- Toolbar ---- */
+  .toolbar {
+    display: flex; gap: 0.6rem; flex-wrap: wrap;
+    margin-bottom: 1rem;
+    align-items: center;
+  }
+  .toolbar input, .toolbar select {
+    padding: 0.45rem 0.8rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    background: #fff;
+  }
+  .toolbar input { flex: 1; min-width: 200px; max-width: 320px; }
+
+  /* ---- Card ---- */
+  .job-card {
+    background: var(--card-bg);
+    border-radius: 10px;
+    padding: 1.2rem 1.5rem;
+    margin-bottom: 0.8rem;
+    border-left: 4px solid var(--border);
+    transition: box-shadow 0.2s;
+    position: relative;
+  }
+  .job-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+  .job-card .rank {
+    position: absolute; top: 0.8rem; right: 1rem;
+    font-size: 0.75rem; color: var(--sub);
+  }
+  .job-card .top-row {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 0.4rem;
+  }
+  .job-card .company {
+    font-size: 1.1rem; font-weight: 700; color: var(--text);
+  }
+  .job-card .title {
+    font-size: 0.95rem; color: var(--accent); font-weight: 500;
+  }
+  .job-card .meta-row {
+    display: flex; gap: 1rem; flex-wrap: wrap;
+    font-size: 0.82rem; color: var(--sub);
+    margin-bottom: 0.6rem;
+  }
+  .job-card .meta-row span { white-space: nowrap; }
+  .job-card .desc {
+    font-size: 0.85rem; color: #555; margin-bottom: 0.6rem;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* ---- Scores ---- */
+  .scores {
+    display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;
+    margin-bottom: 0.4rem;
+  }
+  .score-item { display: flex; align-items: center; gap: 0.3rem; font-size: 0.82rem; }
+  .score-bar {
+    width: 60px; height: 8px; background: var(--border);
+    border-radius: 4px; overflow: hidden;
+  }
+  .score-fill { height: 100%; border-radius: 4px; }
+  .score-fill.high { background: var(--green); }
+  .score-fill.mid { background: var(--accent); }
+  .score-fill.low { background: var(--red); }
+
+  /* ---- Prob Badge ---- */
+  .prob-badge {
+    display: inline-block; padding: 0.2rem 0.6rem; border-radius: 12px;
+    font-size: 0.8rem; font-weight: 600; white-space: nowrap;
+  }
+  .prob-high { background: #d4efdf; color: #1e8449; }
+  .prob-mid { background: #fdebd0; color: #a04000; }
+  .prob-low { background: #fadbd8; color: #922b21; }
+
+  .skill-tags { display: flex; gap: 0.3rem; flex-wrap: wrap; margin-top: 0.3rem; }
+  .tag {
+    font-size: 0.72rem; padding: 0.15rem 0.45rem;
+    border-radius: 10px; background: #ebf5fb; color: #2980b9;
+  }
+  .tag.missing { background: #fdedec; color: #c0392b; }
+
+  .suggestion {
+    font-size: 0.78rem; color: #888; font-style: italic;
+    margin-top: 0.5rem;
+    border-top: 1px dashed var(--border); padding-top: 0.5rem;
+  }
+
+  /* ---- Footer ---- */
+  .footer {
+    text-align: center; padding: 1.5rem; font-size: 0.78rem;
+    color: var(--sub);
+  }
+
+  /* ---- Responsive ---- */
+  @media (max-width: 600px) {
+    .container { padding: 1rem; }
+    .stats { padding: 1rem; }
+    .job-card { padding: 1rem; }
+    .scores { flex-direction: column; align-items: flex-start; }
+  }
+
+  .no-results {
+    text-align: center; padding: 3rem; color: var(--sub);
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🎯 实习岗位智能匹配报告</h1>
+  <div class="meta">
+    <span>👤 {{ profile.name }} · {{ profile.school }}</span>
+    <span>📅 生成时间: {{ report_time }}</span>
+    <span>🏙️ 意向城市: {{ cities | join(', ') }}</span>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat-card">
+    <div class="num">{{ stats.total_jobs }}</div>
+    <div class="label">采集岗位</div>
+  </div>
+  <div class="stat-card">
+    <div class="num">{{ stats.matched }}</div>
+    <div class="label">有效匹配</div>
+  </div>
+  <div class="stat-card">
+    <div class="num">{{ stats.avg_score }}</div>
+    <div class="label">平均匹配分</div>
+  </div>
+  <div class="stat-card">
+    <div class="num">{{ stats.high_prob }}</div>
+    <div class="label">高概率通过</div>
+  </div>
+  <div class="stat-card">
+    <div class="num">{{ stats.companies }}</div>
+    <div class="label">覆盖公司</div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="toolbar">
+    <input type="text" id="searchInput" placeholder="🔍 搜索公司 / 岗位 / 城市..."
+           oninput="filterCards()">
+    <select id="probFilter" onchange="filterCards()">
+      <option value="all">全部概率</option>
+      <option value="high">高概率 (≥70%)</option>
+      <option value="mid">中等 (45%-70%)</option>
+      <option value="low">偏低 (&lt;45%)</option>
+    </select>
+    <select id="cityFilter" onchange="filterCards()">
+      <option value="all">全部城市</option>
+      {% for city in unique_cities %}
+      <option value="{{ city }}">{{ city }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  {% if jobs %}
+    {% for job in jobs %}
+    <div class="job-card"
+         data-company="{{ job.company }}"
+         data-title="{{ job.title }}"
+         data-city="{{ job.city }}"
+         data-prob="{{ '%d' % (job.probability * 100) }}">
+      <div class="rank">#{{ loop.index }}</div>
+
+      <div class="top-row">
+        <div>
+          <div class="company">{{ job.company }}</div>
+          <div class="title">{{ job.title }}</div>
+        </div>
+        <div>
+          {% set prob_pct = (job.probability * 100) | int %}
+          {% if prob_pct >= 70 %}
+            <span class="prob-badge prob-high">通过率 {{ prob_pct }}%</span>
+          {% elif prob_pct >= 45 %}
+            <span class="prob-badge prob-mid">通过率 {{ prob_pct }}%</span>
+          {% else %}
+            <span class="prob-badge prob-low">通过率 {{ prob_pct }}%</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="meta-row">
+        <span>📍 {{ job.city }}</span>
+        <span>💰 {{ job.salary }}</span>
+        {% if job.job_type %}<span>📋 {{ job.job_type }}</span>{% endif %}
+        {% if job.url %}<span>🔗 <a href="{{ job.url }}" target="_blank">查看详情</a></span>{% endif %}
+      </div>
+
+      <div class="desc">{{ job.description }}</div>
+
+      <div class="scores">
+        <div class="score-item">
+          总分
+          <div class="score-bar">
+            {% set pct = (job.total_score * 100) | int %}
+            <div class="score-fill {% if pct >= 70 %}high{% elif pct >= 40 %}mid{% else %}low{% endif %}"
+                 style="width:{{ pct }}%"></div>
+          </div>
+          <strong>{{ '%.1f' % (job.total_score * 100) }}%</strong>
+        </div>
+        <div class="score-item">
+          技能
+          <div class="score-bar">
+            {% set pct = (job.skill_match * 100) | int %}
+            <div class="score-fill {% if pct >= 70 %}high{% elif pct >= 40 %}mid{% else %}low{% endif %}"
+                 style="width:{{ pct }}%"></div>
+          </div>
+          {{ '%.0f' % (job.skill_match * 100) }}%
+        </div>
+        {% if job.difficulty is defined and job.difficulty > 0 %}
+        <div class="score-item">📊 面试难度 {{ job.difficulty }}/5</div>
+        {% endif %}
+        <div class="score-item">🏙️ {{ job.level }}</div>
+      </div>
+
+      {% if job.matched_tags or job.missing_tags %}
+      <div class="skill-tags">
+        {% for t in job.matched_tags %}
+        <span class="tag">✓ {{ t }}</span>
+        {% endfor %}
+        {% for t in job.missing_tags %}
+        <span class="tag missing">✗ {{ t }}</span>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% if job.suggestion %}
+      <div class="suggestion">💡 {{ job.suggestion }}</div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="no-results">
+      <p>📭 暂无匹配岗位</p>
+      <p style="margin-top: 0.5rem; font-size: 0.85rem;">
+        请检查 config.yaml 中的城市和技能配置
+      </p>
+    </div>
+  {% endif %}
+</div>
+
+<div class="footer">
+  <p>🤖 Generated by Internship Auto-Finder · {{ report_time }}</p>
+</div>
+
+<script>
+  function filterCards() {
+    const search = (document.getElementById('searchInput').value || '').toLowerCase();
+    const probVal = document.getElementById('probFilter').value;
+    const cityVal = document.getElementById('cityFilter').value;
+
+    document.querySelectorAll('.job-card').forEach(card => {
+      const company = (card.dataset.company || '').toLowerCase();
+      const title = (card.dataset.title || '').toLowerCase();
+      const city = card.dataset.city || '';
+      const prob = parseInt(card.dataset.prob || '0');
+
+      let visible = true;
+
+      if (search && !company.includes(search) && !title.includes(search) && !city.toLowerCase().includes(search)) {
+        visible = false;
+      }
+      if (probVal === 'high' && prob < 70) visible = false;
+      if (probVal === 'mid' && (prob < 45 || prob >= 70)) visible = false;
+      if (probVal === 'low' && prob >= 45) visible = false;
+      if (cityVal !== 'all' && city !== cityVal) visible = false;
+
+      card.style.display = visible ? '' : 'none';
+    });
+  }
+</script>
+
+</body>
+</html>
