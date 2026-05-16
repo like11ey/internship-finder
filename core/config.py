@@ -17,8 +17,15 @@ def load_config(path: str = CONFIG_PATH) -> dict:
     if _config_cache is not None:
         return _config_cache
     if not os.path.exists(path):
-        raise FileNotFoundError(f"配置文件不存在: {path}\n"
-                                f"请复制 config.yaml 模板并填写个人信息")
+        example_path = os.path.join(os.path.dirname(path), "config.example.yaml")
+        if os.path.exists(example_path):
+            import shutil
+            shutil.copy(example_path, path)
+            from loguru import logger
+            logger.info("已从 config.example.yaml 自动创建 config.yaml")
+        else:
+            raise FileNotFoundError(f"配置文件不存在: {path}\n"
+                                    f"请复制 config.example.yaml 为 config.yaml")
     with open(path, "r", encoding="utf-8") as f:
         _config_cache = yaml.safe_load(f)
     return _config_cache
