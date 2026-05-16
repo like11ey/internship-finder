@@ -1,31 +1,32 @@
-# 核心依赖
+# Core dependencies
 requests>=2.31.0
 httpx>=0.27.0
 beautifulsoup4>=4.12.0
 lxml>=5.2.0
 
-# 异步采集
+# Async
 aiohttp>=3.9.0
 
-# 数据处理
+# Data processing
 pandas>=2.2.0
 jieba>=0.42.1
 scikit-learn>=1.4.0
 
-# 报告生成
+# Report generation
 jinja2>=3.1.0
 
-# 配置解析
+# Config parsing
 pyyaml>=6.0
 
-# 定时调度（Windows 上用任务计划，Linux 上可选）
+# Scheduling
 schedule>=1.2.0
 
-# 日志
+# Logging
 loguru>=0.7.0
 
-# 浏览器自动化（应对反爬，按需安装）
+# Production WSGI server
+gunicorn>=22.0
+
+# Optional: browser automation
 # playwright>=1.42.0
 # selenium>=4.18.0
-
-gunicorn>=22.0
