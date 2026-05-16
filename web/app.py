@@ -211,14 +211,14 @@ def api_llm_extract():
 # 启动
 # ============================================================
 
-def start_web(host: str = "127.0.0.1", port: int = 5000, debug: bool = False):
+def start_web(host: str = "0.0.0.0", port: int = 5000, debug: bool = False):
     """启动 Web 服务"""
     init_db()
     logger.info(f"Web 服务启动: http://{host}:{port}")
     print(f"\n  🌐 实习生岗位筛查工具\n")
     print(f"  📝 个人信息: http://{host}:{port}/profile")
     print(f"  📊 查看报告: http://{host}:{port}/\n")
-    app.run(host=host, port=port, debug=debug, use_reloader=False)
+    app.run(host="0.0.0.0", port=port, debug=debug, use_reloader=False)
 
 
 if __name__ == "__main__":
