@@ -1,4 +1,4 @@
-# Core dependencies
+# Core (lightweight)
 requests>=2.31.0
 httpx>=0.27.0
 beautifulsoup4>=4.12.0
@@ -7,15 +7,10 @@ lxml>=5.2.0
 # Async
 aiohttp>=3.9.0
 
-# Data processing
-pandas>=2.2.0
-jieba>=0.42.1
-scikit-learn>=1.4.0
-
 # Report generation
 jinja2>=3.1.0
 
-# Config parsing
+# Config
 pyyaml>=6.0
 
 # Scheduling
@@ -24,9 +19,8 @@ schedule>=1.2.0
 # Logging
 loguru>=0.7.0
 
-# Production WSGI server
+# Production server
 gunicorn>=22.0
 
-# Optional: browser automation
-# playwright>=1.42.0
-# selenium>=4.18.0
+# NOTE: pandas, scikit-learn, jieba are optional for keyword matching.
+# The app works without them (falls back to regex-based matching).

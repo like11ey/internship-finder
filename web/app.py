@@ -222,10 +222,12 @@ def start_web(host: str = "0.0.0.0", port: int = 5000, debug: bool = False):
 
 
 if __name__ == "__main__":
+    import os as _os
     config = load_config()
     web_cfg = config.get("web", {})
+    port = int(_os.environ.get("PORT", web_cfg.get("port", 5000)))
     start_web(
-        host=web_cfg.get("host", "127.0.0.1"),
-        port=web_cfg.get("port", 5000),
-        debug=True,
+        host="0.0.0.0",
+        port=port,
+        debug=False,
     )
